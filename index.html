@@ -14,69 +14,55 @@
     input{padding:8px;border:1px solid #ccc;border-radius:8px;width:100%}
     small{color:#555}
   </style>
+  <link rel="stylesheet" href="main.css">
 </head>
 <body>
   <header>
     <h1>Health Risk App</h1>
     <p><small>Requirement note: client asks questions and shows instructions but does not do any calculations. The server will do all calculations.</small></p>
   </header>
-
-  <div class="card">
+ <div class="card">
     <h2>Server wake up</h2>
     <p>Status: <span id="status">not checked</span></p>
     <button id="ping">Ping server</button>
-  </div>
-
-  <div class="card">
     <h2>Start instructions</h2>
-    <ol>
+    <ul>
       <li>Enter your info below. The app will send it to the server for calculation.</li>
       <li>No math is done here on the page.</li>
       <li>Invalid inputs will be highlighted with friendly messages.</li>
-    </ol>
+    </ul>
     <p><small>English units are used: feet and inches for height, pounds for weight.</small></p>
-  </div>
-
-  <div class="card">
-    <h2>Inputs (client does not calculate)</h2>
+<!-- Get users inputs and information to determine risk calculation -->
+    <h2>Input for insurance calculator:</h2> <!--  // (client does not calculate) -->
+    <label>Please enter your name:
+      <input id = "name" type = "text" placeholder = "e.g., Justin" required/>
+    </label>
     <label>Age
-      <input id="age" type="number" min="0" placeholder="e.g., 25"/>
+      <input id="age" type = "number" min = "0" placeholder = "e.g., 21" required/>
     </label>
-    <label>Height — feet
-      <input id="feet" type="number" min="2" placeholder="min 2 feet"/>
+    <label>Height (in feet)
+      <input id="feet" type="number" min="2" placeholder="min 2 feet" required/>
     </label>
-    <label>Height — inches
-      <input id="inches" type="number" min="0" max="11" placeholder="0 to 11"/>
+   <label>Height (in inches)
+      <input id="inches" type="number" min="0" max="11" placeholder="0 to 11" required/>
     </label>
-    <label>Weight — pounds
-      <input id="pounds" type="number" min="1" placeholder="e.g., 160"/>
+    <label>Weight (in pounds)
+      <input id="pounds" type="number" min="1" placeholder="e.g., 160" required/>
     </label>
-    <button id="submit" disabled>Submit to server (disabled in scaffold)</button>
-    <p><small>This scaffold only sets up UI and server ping. You will wire this button to Node APIs later.</small></p>
+    <label>Blood Pressure
+      <input id="bloodPressure" type="text" placeholder="e.g., 120/80" required/>
+    </label>
+    <label>Family History anyone with Diabetes, Cancer, Alzheimers? If so which one: 
+      <input id="family" type="text" placeholder="e.g., diabetes, none/no" required/>
+    </label>
+    <label for="message">Review your answers:</label>
+      <textarea id="message" name="message" rows="12" cols="80" placeholder="Verify your answers..."></textarea>
+    </label>
+    <br/>
+    <button id="calculate">Submit</button>
+<!-- This scaffold only sets up UI and server ping. You will wire this button to Node APIs later. -->
+    <p id="result"></p>
   </div>
-
-  <script>
-    // replace this after the server is deployed
-    const API_BASE = "https://risk-server-app-guegc2fng6dza0a6.centralus-01.azurewebsites.net/";
-
-    const statusEl = document.getElementById("status");
-    const pingBtn = document.getElementById("ping");
-
-    async function ping() {
-      statusEl.textContent = "checking...";
-      try {
-        const res = await fetch(`${API_BASE}/api/ping`, { cache: "no-store" });
-        const data = await res.json();
-        statusEl.innerHTML = `<span class="ok">ok</span> — ${new Date(data.now).toLocaleString()} (uptime ${data.uptimeSeconds}s)`;
-      } catch (e) {
-        statusEl.innerHTML = `<span class="bad">server not reachable</span>`;
-        console.error(e);
-      }
-    }
-
-    // wake server on load, and allow manual ping
-    window.addEventListener("load", ping);
-    pingBtn.addEventListener("click", ping);
-  </script>
+  <script src="main.js"></script>
 </body>
 </html>
