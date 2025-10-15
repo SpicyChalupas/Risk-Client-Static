@@ -11,9 +11,10 @@ const els = {
   feet: document.getElementById("feet"),
   inches: document.getElementById("inches"),
   pounds: document.getElementById("pounds"),
-  bloodPressure: document.getElementById("bloodPressure"),
-  family: document.getElementById("family"),
-  message: document.getElementById("message"),
+  // family checkboxes + group
+  familyGroup: document.getElementById("familyGroup"),
+  familyChecks: Array.from(document.querySelectorAll('input[name="family"]')),
+  familyNone: document.getElementById("fam-none"),
   errors: document.getElementById("errors"),
   submit: document.getElementById("calculate"),
   result: document.getElementById("result"),
@@ -35,18 +36,44 @@ async function ping() {
 
 function clearErrors() {
   els.errors.innerHTML = "";
-  [els.name, els.age, els.feet, els.inches, els.pounds, els.bloodPressure, els.family]
-    .forEach(el => el.classList.remove("error"));
+  [els.name, els.age, els.feet, els.inches, els.pounds].forEach(el => el.classList.remove("error"));
+  els.familyGroup.classList.remove("error");
 }
 
 function showErrors(map) {
   const first = Object.keys(map)[0];
   els.errors.innerHTML = `<ul>${Object.entries(map).map(([k,v]) => `<li><b>${k}:</b> ${v}</li>`).join("")}</ul>`;
+
   Object.keys(map).forEach((k) => {
-    const field = els[k];
+    let field = null;
+    if (k === "family") field = els.familyGroup;
+    else field = els[k];
     if (field) field.classList.add("error");
   });
-  if (first && els[first]) els[first].focus();
+
+  if (first) {
+    const field = first === "family" ? els.familyGroup : els[first];
+    if (field && field.focus) field.focus();
+    else if (first === "family") els.familyChecks[0].focus();
+  }
+}
+
+// Enforce "none" is exclusive
+function setupFamilyExclusivity() {
+  els.familyChecks.forEach(cb => {
+    cb.addEventListener("change", () => {
+      if (cb === els.familyNone && cb.checked) {
+        els.familyChecks.forEach(o => { if (o !== els.familyNone) o.checked = false; });
+      } else if (cb !== els.familyNone && cb.checked) {
+        els.familyNone.checked = false;
+      }
+    });
+  });
+}
+
+function getSelectedFamily() {
+  const selected = els.familyChecks.filter(cb => cb.checked).map(cb => cb.value);
+  return selected; // array
 }
 
 async function onSubmit() {
@@ -59,8 +86,7 @@ async function onSubmit() {
   const feetRaw = els.feet.value.trim();
   const inchesRaw = els.inches.value.trim();
   const poundsRaw = els.pounds.value.trim();
-  const bpRaw = els.bloodPressure.value.trim();
-  const familyRaw = els.family.value.trim();
+  const familyArr = getSelectedFamily();
 
   const errs = {};
   // Required checks
@@ -69,10 +95,9 @@ async function onSubmit() {
   if (!feetRaw) errs.feet = "Height (feet) is required.";
   if (!inchesRaw) errs.inches = "Height (inches) is required.";
   if (!poundsRaw) errs.pounds = "Weight (lbs) is required.";
-  if (!bpRaw) errs.bloodPressure = "Blood pressure is required.";
-  if (!familyRaw) errs.family = "Family history is required.";
+  if (familyArr.length === 0) errs.family = "Select at least one family history option.";
 
-  // Parse numbers & formats after required checks
+  // Parse numbers after required checks
   const age = Number(ageRaw);
   const feet = Number(feetRaw);
   const inches = Number(inchesRaw);
@@ -85,8 +110,8 @@ async function onSubmit() {
   if (!Number.isFinite(pounds) || pounds <= 0)
     errs.pounds = errs.pounds || "Valid weight required.";
 
-  if (!/^\s*\d{2,3}\s*\/\s*\d{2,3}\s*$/.test(bpRaw))
-    errs.bloodPressure = errs.bloodPressure || "Use ###/## (e.g., 120/80).";
+  // We’ll ask for BP in the next step via popup summary, but BP is still a normal field,
+  // so nothing changes here (no BP change in this commit).
 
   if (Object.keys(errs).length) {
     els.result.textContent = "";
@@ -94,12 +119,21 @@ async function onSubmit() {
     return;
   }
 
-  // Build payload only after all validations pass
+  const familyStr = familyArr.join(","); // server accepts comma-separated string
+
+  const bpRaw = document.getElementById("bloodPressure").value.trim();
+  const bpErr = /^\s*\d{2,3}\s*\/\s*\d{2,3}\s*$/.test(bpRaw) ? "" : "Use ###/## (e.g., 120/80).";
+  if (bpErr) {
+    els.result.textContent = "";
+    showErrors({ bloodPressure: bpErr });
+    return;
+  }
+
   const payload = {
     name: nameRaw,
     age, feet, inches, pounds,
     bloodPressure: bpRaw,
-    family: familyRaw,
+    family: familyStr,      // send as string
   };
 
   els.submit.disabled = true;
@@ -120,7 +154,7 @@ async function onSubmit() {
     const data = await res.json();
     const { input, details, points, total, category } = data;
 
-    // Build a verification summary string
+    // Build a verification summary string (popup Yes/No)
     const summaryLines = [
       `Please confirm the details below:\n`,
       `Name: ${input.name}`,
@@ -134,15 +168,8 @@ async function onSubmit() {
       ``,
       `Is this information correct?`,
     ];
-    const summaryText = summaryLines.join("\n");
-
-    // Keep textarea filled for accessibility/history, but gate the result on a Yes/No popup.
-    els.message.value = summaryLines.slice(0, -1).join("\n");
-
-    // === YES / NO POPUP ===
-    const confirmed = window.confirm(summaryText);
+    const confirmed = window.confirm(summaryLines.join("\n"));
     if (!confirmed) {
-      // User chose "No" -> show nothing in result area.
       els.result.textContent = "";
       return;
     }
@@ -170,6 +197,9 @@ async function onSubmit() {
 }
 
 // Wake server on load; allow manual ping
-window.addEventListener("load", ping);
+window.addEventListener("load", () => {
+  setupFamilyExclusivity();
+  ping();
+});
 els.pingBtn.addEventListener("click", ping);
 els.submit.addEventListener("click", onSubmit);
