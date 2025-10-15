@@ -1,68 +1,90 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Health Risk App — Sprint Scaffold</title>
-  <style>
-    body{font-family:system-ui,Segoe UI,Arial;max-width:720px;margin:40px auto;padding:0 16px}
-    header{margin-bottom:16px}
-    .card{border:1px solid #ddd;border-radius:12px;padding:16px;margin:16px 0}
-    button{padding:10px 16px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
-    .ok{color:green} .bad{color:#b00020}
-    label{display:block;margin:8px 0 4px}
-    input{padding:8px;border:1px solid #ccc;border-radius:8px;width:100%}
-    small{color:#555}
-  </style>
-  <link rel="stylesheet" href="main.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Risk App — Sprint Scaffold</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Health Risk App</h1>
-    <p><small>Requirement note: client asks questions and shows instructions but does not do any calculations. The server will do all calculations.</small></p>
-  </header>
- <div class="card">
-    <h2>Server wake up</h2>
-    <p>Status: <span id="status">not checked</span></p>
-    <button id="ping">Ping server</button>
-    <h2>Start instructions</h2>
-    <ul>
-      <li>Enter your info below. The app will send it to the server for calculation.</li>
-      <li>No math is done here on the page.</li>
-      <li>Invalid inputs will be highlighted with friendly messages.</li>
-    </ul>
-    <p><small>English units are used: feet and inches for height, pounds for weight.</small></p>
-<!-- Get users inputs and information to determine risk calculation -->
-    <h2>Input for insurance calculator:</h2> <!--  // (client does not calculate) -->
-    <label>Please enter your name:
-      <input id = "name" type = "text" placeholder = "e.g., Justin" required/>
-    </label>
-    <label>Age
-      <input id="age" type = "number" min = "0" placeholder = "e.g., 21" required/>
-    </label>
-    <label>Height (in feet)
-      <input id="feet" type="number" min="2" placeholder="min 2 feet" required/>
-    </label>
-   <label>Height (in inches)
-      <input id="inches" type="number" min="0" max="11" placeholder="0 to 11" required/>
-    </label>
-    <label>Weight (in pounds)
-      <input id="pounds" type="number" min="1" placeholder="e.g., 160" required/>
-    </label>
-    <label>Blood Pressure
-      <input id="bloodPressure" type="text" placeholder="e.g., 120/80" required/>
-    </label>
-    <label>Family History anyone with Diabetes, Cancer, Alzheimers? If so which one: 
-      <input id="family" type="text" placeholder="e.g., diabetes, none/no" required/>
-    </label>
-    <label for="message">Review your answers:</label>
-      <textarea id="message" name="message" rows="12" cols="80" placeholder="Verify your answers..."></textarea>
-    </label>
-    <br/>
-    <button id="calculate">Submit</button>
-<!-- This scaffold only sets up UI and server ping. You will wire this button to Node APIs later. -->
-    <p id="result"></p>
-  </div>
-  <script src="main.js"></script>
+    <img src="bmilogo.png" width="200" height="200" alt="BMI Logo">
+    
+    <h1 id="myH1">Health Risk App</h1>
+    
+    <h2>Calculate Your BMI</h2>
+    <p>
+        Body mass index (BMI) is a measure of body fat based on height and weight that applies to adult men and women.
+        Your BMI is just one piece of the puzzle.
+        It’s based on height and weight but doesn’t take into account your muscle mass, bone density, or body composition. 
+        Your healthcare provider will consider whether your BMI is too high or too low for you.
+    </p>
+
+    <div class="myBCatTable">  
+        <h3 class="myBHead">BMI CATEGORIES</h3>
+        <table id="myTable">
+            <tr>
+                <th>BMI Category</th>
+                <th>BMI Range</th>
+            </tr>
+            <tr>
+                <td>Underweight</td> 
+                <td>Below 18.5</td>    
+            </tr>
+            <tr>
+                <td>Healthy</td>
+                <td>18.5 – 24.9</td>    
+            </tr>
+            <tr>
+                <td>Overweight</td>
+                <td>25.0 – 29.9</td>    
+            </tr>
+            <tr>
+                <td>Obesity</td>
+                <td>30.0 or above</td>    
+            </tr>
+        </table>
+    </div>
+
+    <h3 class="myBHead">BMI CALCULATOR</h3>
+
+    
+   <div class="formContainer">
+     <label>Please enter your name:
+        <input id="name" type="text" placeholder="e.g., Justin" required />
+     </label>
+    
+     <label>Age
+        <input id="age" type="number" min="0" placeholder="e.g., 21" required />
+     </label>
+    
+     <label>Height (in feet)
+        <input id="feet" type="number" min="2" placeholder="min 2 feet" required />
+     </label>
+    
+     <label>Height (in inches)
+        <input id="inches" type="number" min="0" max="11" placeholder="0 to 11" required />
+     </label>
+    
+     <label>Weight (in pounds)
+        <input id="pounds" type="number" min="1" placeholder="e.g., 160" required />
+     </label>
+    
+     <label>Blood Pressure
+        <input id="bloodPressure" type="text" placeholder="e.g., 120/80" required />
+     </label>
+    
+     <label>Family History anyone with Diabetes, Cancer, Alzheimers? If so which one:
+        <input id="family" type="text" placeholder="e.g., diabetes, none/no" required />
+     </label>
+    
+     <label for="message">Review your answers:</label>
+     <textarea id="message" name="message" placeholder="Verify your answers..."></textarea>
+
+     <button id="calculate">Submit</button>
+     <p id="result"></p>
+   </div>
+
+
+   <script src="main.js"></script>
 </body>
 </html>
