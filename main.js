@@ -11,6 +11,7 @@ const els = {
   feet: document.getElementById("feet"),
   inches: document.getElementById("inches"),
   pounds: document.getElementById("pounds"),
+  bloodPressure: document.getElementById("bloodPressure"),   // ✅ back
   // family checkboxes + group
   familyGroup: document.getElementById("familyGroup"),
   familyChecks: Array.from(document.querySelectorAll('input[name="family"]')),
@@ -36,7 +37,7 @@ async function ping() {
 
 function clearErrors() {
   els.errors.innerHTML = "";
-  [els.name, els.age, els.feet, els.inches, els.pounds].forEach(el => el.classList.remove("error"));
+  [els.name, els.age, els.feet, els.inches, els.pounds, els.bloodPressure].forEach(el => el.classList.remove("error"));
   els.familyGroup.classList.remove("error");
 }
 
@@ -72,8 +73,7 @@ function setupFamilyExclusivity() {
 }
 
 function getSelectedFamily() {
-  const selected = els.familyChecks.filter(cb => cb.checked).map(cb => cb.value);
-  return selected; // array
+  return els.familyChecks.filter(cb => cb.checked).map(cb => cb.value);
 }
 
 async function onSubmit() {
@@ -86,6 +86,7 @@ async function onSubmit() {
   const feetRaw = els.feet.value.trim();
   const inchesRaw = els.inches.value.trim();
   const poundsRaw = els.pounds.value.trim();
+  const bpRaw = els.bloodPressure.value.trim();
   const familyArr = getSelectedFamily();
 
   const errs = {};
@@ -95,6 +96,7 @@ async function onSubmit() {
   if (!feetRaw) errs.feet = "Height (feet) is required.";
   if (!inchesRaw) errs.inches = "Height (inches) is required.";
   if (!poundsRaw) errs.pounds = "Weight (lbs) is required.";
+  if (!bpRaw) errs.bloodPressure = "Blood pressure is required.";
   if (familyArr.length === 0) errs.family = "Select at least one family history option.";
 
   // Parse numbers after required checks
@@ -110,8 +112,9 @@ async function onSubmit() {
   if (!Number.isFinite(pounds) || pounds <= 0)
     errs.pounds = errs.pounds || "Valid weight required.";
 
-  // We’ll ask for BP in the next step via popup summary, but BP is still a normal field,
-  // so nothing changes here (no BP change in this commit).
+  // BP format
+  if (!/^\s*\d{2,3}\s*\/\s*\d{2,3}\s*$/.test(bpRaw))
+    errs.bloodPressure = errs.bloodPressure || "Use ###/## (e.g., 120/80).";
 
   if (Object.keys(errs).length) {
     els.result.textContent = "";
@@ -119,21 +122,11 @@ async function onSubmit() {
     return;
   }
 
-  const familyStr = familyArr.join(","); // server accepts comma-separated string
-
-  const bpRaw = document.getElementById("bloodPressure").value.trim();
-  const bpErr = /^\s*\d{2,3}\s*\/\s*\d{2,3}\s*$/.test(bpRaw) ? "" : "Use ###/## (e.g., 120/80).";
-  if (bpErr) {
-    els.result.textContent = "";
-    showErrors({ bloodPressure: bpErr });
-    return;
-  }
-
   const payload = {
     name: nameRaw,
     age, feet, inches, pounds,
     bloodPressure: bpRaw,
-    family: familyStr,      // send as string
+    family: familyArr.join(","), // server accepts comma-separated string
   };
 
   els.submit.disabled = true;
