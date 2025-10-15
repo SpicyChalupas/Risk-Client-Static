@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Health Risk App — Sprint</title>
 
-  <!-- keep your existing stylesheet -->
   <link rel="stylesheet" href="style.css" />
 
   <!-- minimal styles for new elements only -->
@@ -16,6 +15,7 @@
     .error { outline: 2px solid #d00; background: #ffecec; }
     .result-card { border: 1px solid #ccc; padding: 12px; border-radius: 8px; }
     .instructions { background: #f7f7ff; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+    .family-group label { display: inline-block; margin-right: 14px; }
   </style>
 </head>
 <body>
@@ -73,16 +73,13 @@
       <input id="pounds" type="number" min="1" placeholder="e.g., 160" required />
     </label>
 
-    <label>Blood Pressure
-      <input id="bloodPressure" type="text" placeholder="e.g., 120/80" required />
-    </label>
-
-    <label>Family History (diabetes, cancer, Alzheimer’s)
-      <input id="family" type="text" placeholder="e.g., diabetes, none/no" required />
-    </label>
-
-    <label for="message">Review your answers:</label>
-    <textarea id="message" name="message" placeholder="Verify your answers..."></textarea>
+    <fieldset id="familyGroup" class="family-group">
+      <legend>Family History (select all that apply)</legend>
+      <label><input type="checkbox" name="family" value="diabetes" id="fam-diabetes"> Diabetes</label>
+      <label><input type="checkbox" name="family" value="cancer" id="fam-cancer"> Cancer</label>
+      <label><input type="checkbox" name="family" value="alzheimer's" id="fam-alz"> Alzheimer’s</label>
+      <label><input type="checkbox" name="family" value="none" id="fam-none"> None</label>
+    </fieldset>
 
     <button id="calculate" type="button">Submit</button>
     <p id="result"></p>
